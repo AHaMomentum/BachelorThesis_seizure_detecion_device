@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "Citation file as I cited this repository in my thesis"
+authors:
+  - family-names: Hardenbicker
+    given-names: Anna Katherina
+title: "Seizure Detection Device - virtual environment"
+version: 1.0.0
+date-released: 2025-07-22

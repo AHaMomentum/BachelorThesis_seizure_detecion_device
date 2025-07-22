@@ -40,7 +40,7 @@ MESSAGE = "seizure_prediction"
 TOPIC = "seizure_alert"
 
 #SECTION THREE
-def MPU_init():                                                                                                         #initialize the MPU-6050
+def mpu_init():                                                                                                         #initialize the MPU-6050
     bus.write_byte_data(Device_Address, SMPLRT_DIV, 7)  # write to sample rate register                                 #use a regular sample speed (manually decreased by code)
     bus.write_byte_data(Device_Address, PWR_MGMT_1, 1)  # write to power management register                            #use the regular power mode
     bus.write_byte_data(Device_Address, CONFIG, 0)  # write to configuration register
@@ -62,7 +62,7 @@ def write_service():                                                            
 #SECTION FOUR
 bus = smbus2.SMBus(1)                                                                                                   #configures i2c bus 1 to be addressed
 Device_Address = 0x68                                                                                                   #configures device 0x68 to be addressed
-MPU_init()                                                                                                              #MPU intialization
+mpu_init()                                                                                                              #MPU intialization
 print("IMU sensor found. Start building random forest classifier.")
 write_service()                                                                                                         #write to text
 
@@ -81,25 +81,28 @@ class_report = classification_report(test_y, pred_y)                            
 print("Classification report: ", class_report)
 
 #SECTION FIVE
-print("Random Forest Classifier successfully build. Connecting to AWS.")                                                #Establish mqtt connection with AWS IoT Core
-event_loop_group = io.EventLoopGroup(1)
-host_resolver = io.DefaultHostResolver(event_loop_group)
-client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
-mqtt_connection = mqtt_connection_builder.mtls_from_path(
-    endpoint=ENDPOINT,                                                                                                  #Get the global variables declared above
-    cert_filepath=PATH_TO_CERTIFICATE,
-    pri_key_filepath=PATH_TO_PRIVATE_KEY,
-    client_bootstrap=client_bootstrap,
-    ca_filepath=PATH_TO_AMAZON_ROOT_CA_1,
-    client_id=CLIENT_ID,
-    clean_session=False,
-    keep_alive_secs=240,
-)
-print("Connecting to {} with client ID '{}'...".format(ENDPOINT, CLIENT_ID))
-connect_future = mqtt_connection.connect()
-connect_future.result()
-print("Connected!")
-print('Begin Publish')
+try:
+    print("Random Forest Classifier successfully build. Connecting to AWS.")                                                #Establish mqtt connection with AWS IoT Core
+    event_loop_group = io.EventLoopGroup(1)
+    host_resolver = io.DefaultHostResolver(event_loop_group)
+    client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
+    mqtt_connection = mqtt_connection_builder.mtls_from_path(
+        endpoint=ENDPOINT,                                                                                                  #Get the global variables declared above
+        cert_filepath=PATH_TO_CERTIFICATE,
+        pri_key_filepath=PATH_TO_PRIVATE_KEY,
+        client_bootstrap=client_bootstrap,
+        ca_filepath=PATH_TO_AMAZON_ROOT_CA_1,
+        client_id=CLIENT_ID,
+        clean_session=False,
+        keep_alive_secs=240,
+    )
+    print("Connecting to {} with client ID '{}'...".format(ENDPOINT, CLIENT_ID))
+    connect_future = mqtt_connection.connect()
+    connect_future.result()
+    print("Connected!")
+    print('Begin Publish')
+except:
+    print("Connection failed!")
 
 #SECTION SIx
 try:

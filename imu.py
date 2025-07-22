@@ -40,14 +40,24 @@ MESSAGE = "seizure_prediction"
 TOPIC = "seizure_alert"
 
 #SECTION THREE
-def mpu_init():                                                                                                         #initialize the MPU-6050
+def mpu_init(): 
+    """ 
+    Initializes the registers and the MPU-6050.  
+    Arguments:
+    none
+    """
     bus.write_byte_data(Device_Address, SMPLRT_DIV, 7)  # write to sample rate register                                 #use a regular sample speed (manually decreased by code)
     bus.write_byte_data(Device_Address, PWR_MGMT_1, 1)  # write to power management register                            #use the regular power mode
     bus.write_byte_data(Device_Address, CONFIG, 0)  # write to configuration register
     bus.write_byte_data(Device_Address, GYRO_CONFIG, 24)  # write to gyroscope config regsiter
     bus.write_byte_data(Device_Address, INT_ENABLE, 1)  # write to interrupt register
 
-def read_raw(addr):                                                                                                     #read the 16bit values from the IMU
+def read_raw(addr): 
+    """ 
+    Reads the 16bit binary values from the IMU 
+    Arguments:
+    addr: The register address to be read out 
+    """
     high = bus.read_byte_data(Device_Address, addr)
     low = bus.read_byte_data(Device_Address, addr + 1)
     value = ((high << 8) | low)
@@ -55,7 +65,12 @@ def read_raw(addr):                                                             
         value = value - 65536                                                                                           #sign the value if needed
     return value
 
-def write_service():                                                                                                    #write to text when service is started and run
+def write_service():
+    """ 
+    Writes to text file whenever the systemd service is started and run
+    Arguments:
+    none
+    """
     with open("/home/admin/seizure_device/service.txt", "w") as text:
         print(f"Service started.", file=text)
 
